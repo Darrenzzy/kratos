@@ -406,3 +406,49 @@ func (c *Context) RemoteIP() (remoteIP string) {
 
 	return
 }
+
+func (c *Context) RetSuccess(msg string, data interface{}) {
+	if msg == "" {
+		msg = "success"
+	}
+	c.Error = nil
+	c.Render(http.StatusOK, render.JSON{
+		Code:    0,
+		Message: msg,
+		Data:    data,
+	})
+}
+
+// 服务逻辑错误
+func (c *Context) RetError(msg string) {
+	if msg == "" {
+		msg = "服务器开了点小差，请稍后再试～"
+	}
+	c.Error = nil
+	c.Render(http.StatusOK, render.JSON{
+		Code:    http.StatusInternalServerError,
+		Message: msg,
+		Data:    nil,
+	})
+}
+
+// 鉴权错误
+func (c *Context) RetAuthorizeError(msg string) {
+	if msg == "" {
+		msg = "服务器开了点小差，请稍后再试～"
+	}
+	c.Error = nil
+	c.Render(http.StatusOK, render.JSON{
+		Code:    http.StatusUnauthorized,
+		Message: msg,
+	})
+}
+
+// JSON2 公共JSON响应
+func (c *Context) JSON2(code int, msg string, data interface{}) {
+	c.Render(http.StatusOK, render.JSON{
+		Code:    code,
+		Message: msg,
+		Data:    data,
+	})
+}
