@@ -20,11 +20,11 @@ import (
 )
 
 var (
-	//etcdPrefix is a etcd globe key prefix
+	// etcdPrefix is a etcd globe key prefix
 	endpoints  string
 	etcdPrefix string
 
-	//Time units is second
+	// Time units is second
 	registerTTL        = 90
 	defaultDialTimeout = 30
 )
@@ -32,7 +32,7 @@ var (
 var (
 	_once    sync.Once
 	_builder naming.Builder
-	//ErrDuplication is a register duplication err
+	// ErrDuplication is a register duplication err
 	ErrDuplication = errors.New("etcd: instance duplicate registration")
 )
 
@@ -42,7 +42,8 @@ func init() {
 
 func addFlag(fs *flag.FlagSet) {
 	// env
-	fs.StringVar(&endpoints, "etcd.endpoints", os.Getenv("ETCD_ENDPOINTS"), "etcd.endpoints is etcd endpoints. value: 127.0.0.1:2379,127.0.0.2:2379 etc.")
+	fs.StringVar(&endpoints, "etcd.endpoints", "127.0.0.1:32779,127.0.0.1:32775,127.0.0.1:32778", "etcd.endpoints is etcd endpoints. value: 127.0.0.1:2379,127.0.0.2:2379 etc.")
+	// fs.StringVar(&endpoints, "etcd.endpoints", os.Getenv("ETCD_ENDPOINTS"), "etcd.endpoints is etcd endpoints. value: 127.0.0.1:2379,127.0.0.2:2379 etc.")
 	fs.StringVar(&etcdPrefix, "etcd.prefix", defaultString("ETCD_PREFIX", "kratos_etcd"), "etcd globe key prefix or use ETCD_PREFIX env variable. value etcd_prefix etc.")
 }
 
@@ -202,7 +203,7 @@ func (e *EtcdBuilder) Register(ctx context.Context, ins *naming.Instance) (cance
 	return
 }
 
-//注册和续约公用一个操作
+// 注册和续约公用一个操作
 func (e *EtcdBuilder) register(ctx context.Context, ins *naming.Instance) (err error) {
 	prefix := e.keyPrefix(ins)
 	val, _ := json.Marshal(ins)

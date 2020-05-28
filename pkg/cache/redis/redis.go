@@ -61,6 +61,14 @@ func (r *Redis) Do(ctx context.Context, commandName string, args ...interface{})
 	return
 }
 
+// 去除链路追踪，快捷调redis
+func (r *Redis) Kdo(commandName string, args ...interface{}) (reply interface{}, err error) {
+	conn := r.pool.Get(context.TODO())
+	defer conn.Close()
+	reply, err = conn.Do(commandName, args...)
+	return
+}
+
 // Close closes connection pool
 func (r *Redis) Close() error {
 	return r.pool.Close()
