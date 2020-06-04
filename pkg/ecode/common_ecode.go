@@ -17,5 +17,10 @@ var (
 	ServiceUnavailable = add(503) // 过载保护,服务暂不可用
 	Deadline           = add(504) // 服务调用超时
 	LimitExceed        = add(509) // 超出限制
+)
 
+const (
+	ErrLoadCfgMsg = "获取配置信息失败"
+	ErrParamMsg   = "参数不合法"
+	ErrCalcMsg    = "获取价格信息失败"
 )

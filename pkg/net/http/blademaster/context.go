@@ -242,14 +242,13 @@ func (c *Context) Render(code int, r render.Render) {
 // JSON serializes the given struct as JSON into the response body.
 // It also sets the Content-Type as "application/json".
 func (c *Context) JSON(data interface{}, err error) {
-	code := http.StatusOK
 	c.Error = err
 	bcode := ecode.Cause(err)
 	if bcode.Code() != 0 {
 		data = nil
 	}
 	writeStatusCode(c.Writer, bcode.Code())
-	c.Render(code, render.JSON{
+	c.Render(http.StatusOK, render.JSON{
 		Code:    bcode.Code(),
 		Message: bcode.Message(),
 		Data:    data,

@@ -108,11 +108,11 @@ func (t *bm) generateFileHeader(file *descriptor.FileDescriptorProto, pkgName st
 }
 
 func (t *bm) generateImports(file *descriptor.FileDescriptorProto) {
-	//if len(file.Service) == 0 {
+	// if len(file.Service) == 0 {
 	//	return
-	//}
+	// }
 	t.P(`import (`)
-	//t.P(`	`,t.pkgs["context"], ` "context"`)
+	// t.P(`	`,t.pkgs["context"], ` "context"`)
 	t.P(`	"context"`)
 	t.P()
 	t.P(`	bm "github.com/go-kratos/kratos/pkg/net/http/blademaster"`)
@@ -162,6 +162,7 @@ func (t *bm) generateBMRoute(
 		routeFuncName string
 		apiInfo       *generator.HTTPInfo
 		methodName    string
+		IsAuth        bool // api是否鉴权
 	}
 	var methList []methodInfo
 	var allMidwareMap = make(map[string]bool)
@@ -178,10 +179,10 @@ func (t *bm) generateBMRoute(
 		}
 		apiInfo := t.GetHttpInfoCached(file, service, method)
 		isLegacyPkg = apiInfo.IsLegacyPath
-		//httpMethod, legacyPath, path := getHttpInfo(file, service, method, t.reg)
-		//if legacyPath != "" {
+		// httpMethod, legacyPath, path := getHttpInfo(file, service, method, t.reg)
+		// if legacyPath != "" {
 		//	isLegacyPkg = true
-		//}
+		// }
 
 		midStr := tag.GetTagValue("midware", tags)
 		if midStr != "" {
@@ -197,11 +198,17 @@ func (t *bm) generateBMRoute(
 		routeName := utils.LcFirst(utils.CamelCase(servName) +
 			utils.CamelCase(methName))
 
+		var isAuth bool
+		if len(midwares) > 0 && midwares[0] == "auth" {
+			isAuth = true
+		}
+
 		methList = append(methList, methodInfo{
 			apiInfo:       apiInfo,
 			midwares:      midwares,
 			routeFuncName: routeName,
 			methodName:    method.GetName(),
+			IsAuth:        isAuth,
 		})
 
 		t.P(fmt.Sprintf("func %s (c *bm.Context) {", routeName))
@@ -214,6 +221,12 @@ func (t *bm) generateBMRoute(
 			requestBinding + `); err != nil {`)
 		t.P(`		return`)
 		t.P(`	}`)
+
+		// Parameters in the request body are injected into the context
+		t.P(` c.Context = context.WithValue(c.Context, "remote_addr", c.Request.RemoteAddr) `)
+		t.P(` c.Context = context.WithValue(c.Context, "userID", c.Request.Header.Get("userID")) `)
+		t.P(` c.Context = context.WithValue(c.Context, "token", c.Request.Header.Get("token"))`)
+
 		t.P(`	resp, err := `, svcName, `.`, methName, `(c, p)`)
 		t.P(`	c.JSON(resp, err)`)
 		t.P(`}`)
@@ -255,17 +268,23 @@ func (t *bm) generateBMRoute(
 			t.P(`e.`, methInfo.apiInfo.HttpMethod, `("`, methInfo.apiInfo.LegacyPath, `", `, midArgStr, methInfo.routeFuncName, `)`)
 		}
 		t.P(`	}`)
-	} else {
-		// 新的注册路由的方法
-		var bmFuncName = fmt.Sprintf("Register%sBMServer", servName)
-		t.P(`// `, bmFuncName, ` Register the blademaster route`)
-		t.P(`func `, bmFuncName, `(e *bm.Engine, server `, servName, `BMServer) {`)
-		t.P(svcName, ` = server`)
-		for _, methInfo := range methList {
-			t.P(`e.`, methInfo.apiInfo.HttpMethod, `("`, methInfo.apiInfo.NewPath, `",`, methInfo.routeFuncName, ` )`)
-		}
-		t.P(`	}`)
 	}
+	// 新的注册路由的方法
+	var bmFuncName = fmt.Sprintf("Register%sBMServer", servName)
+	t.P(`// `, bmFuncName, ` Register the blademaster route`)
+	t.P(`func `, bmFuncName, `(e *bm.Engine, server `, servName, `BMServer) {`)
+	t.P(svcName, ` = server`)
+	// 注入 鉴权 路由
+	t.P(` auth := e.Group("", authUser())`)
+	for _, methInfo := range methList {
+		// 判断若是需要鉴权的api 走鉴权流
+		if methInfo.IsAuth {
+			t.P(`auth.`, methInfo.apiInfo.HttpMethod, `("`, methInfo.apiInfo.NewPath, `",`, methInfo.routeFuncName, ` )`)
+			continue
+		}
+		t.P(`e.`, methInfo.apiInfo.HttpMethod, `("`, methInfo.apiInfo.NewPath, `",`, methInfo.routeFuncName, ` )`)
+	}
+	t.P(`	}`)
 }
 
 func (t *bm) hasHeaderTag(md *typemap.MessageDefinition) bool {

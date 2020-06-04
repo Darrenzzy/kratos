@@ -65,6 +65,9 @@ func (e Code) Message() string {
 			return msg
 		}
 	}
+	if e.Code() == 0 {
+		return "success"
+	}
 	return e.Error()
 }
 
