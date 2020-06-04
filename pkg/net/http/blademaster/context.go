@@ -247,10 +247,16 @@ func (c *Context) JSON(data interface{}, err error) {
 	if bcode.Code() != 0 {
 		data = nil
 	}
+	var message string
+	if err != nil {
+		message = err.Error()
+	} else {
+		message = bcode.Message()
+	}
 	writeStatusCode(c.Writer, bcode.Code())
 	c.Render(http.StatusOK, render.JSON{
 		Code:    bcode.Code(),
-		Message: bcode.Message(),
+		Message: message,
 		Data:    data,
 	})
 }

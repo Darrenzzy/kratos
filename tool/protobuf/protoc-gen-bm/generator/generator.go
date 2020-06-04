@@ -53,7 +53,7 @@ func (t *bm) generateForFile(file *descriptor.FileDescriptorProto) *plugin.CodeG
 		count += t.generateBMInterface(file, service)
 		t.generateBMRoute(file, service, i)
 	}
-
+	t.generateAuthUser()
 	resp.Name = proto.String(naming.GenFileName(file, ".bm.go"))
 	resp.Content = proto.String(t.FormattedOutput())
 	t.Output.Reset()
@@ -316,6 +316,8 @@ func (t *bm) generateBMInterface(file *descriptor.FileDescriptorProto, service *
 		t.PrintComments(comments)
 	}
 	t.P(`type `, servName, `BMServer interface {`)
+	t.P(`AuthUser(ctx *bm.Context) (err error)
+`)
 	for _, method := range service.Method {
 		if !t.ShouldGenForMethod(file, service, method) {
 			continue
@@ -354,4 +356,18 @@ func (t *bm) generateInterfaceMethod(file *descriptor.FileDescriptorProto,
 		t.P(fmt.Sprintf(`	%s(ctx context.Context, req *%s) (resp *%s, err error)`,
 			methName, inputType, outputType))
 	}
+}
+
+func (t *bm) generateAuthUser() {
+	t.P(`// 鉴权验证`)
+	t.P(`func authUser() bm.HandlerFunc {`)
+	t.P(`return func(ctx *bm.Context) {`)
+	t.P(`err := UserCenterSvc.AuthUser(ctx)`)
+	t.P(`if err != nil {`)
+	t.P(`ctx.RetAuthorizeError(err.Error())`)
+	t.P(`ctx.Abort()`)
+	t.P(`}`)
+	t.P(`}`)
+	t.P(`}`)
+	// t.P(``)
 }
