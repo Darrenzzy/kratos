@@ -79,7 +79,7 @@ func GetHTTPInfo(
 		}
 	}
 
-	newPath = "/" + file.GetPackage() + "." + service.GetName() + "/" + method.GetName()
+	newPath = "/" + file.GetPackage() + "/" + strings.ToLower(service.GetName()) + "/" + snakeString(method.GetName())
 END:
 	var p = newPath
 	param := &HTTPInfo{HttpMethod: httpMethod,
@@ -94,6 +94,24 @@ END:
 		param.Title = param.Path
 	}
 	return param
+}
+
+// snake string, XxYy to xx_yy , XxYY to xx_yy
+func snakeString(s string) string {
+	data := make([]byte, 0, len(s)*2)
+	j := false
+	num := len(s)
+	for i := 0; i < num; i++ {
+		d := s[i]
+		if i > 0 && d >= 'A' && d <= 'Z' && j {
+			data = append(data, '_')
+		}
+		if d != '_' {
+			j = true
+		}
+		data = append(data, d)
+	}
+	return strings.ToLower(string(data[:]))
 }
 
 func (t *Base) GetHttpInfoCached(file *descriptor.FileDescriptorProto,

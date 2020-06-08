@@ -82,7 +82,7 @@ func (t *swaggerGen) generateSwagger(file *descriptor.FileDescriptorProto) *plug
 			op.Summary = apiInfo.Title
 			op.Description = apiInfo.Description
 			swaggerObj.Paths[apiInfo.Path] = pathItem
-			op.Tags = []string{pkg + "." + svc.GetName()}
+			op.Tags = []string{pkg + "/" + strings.ToLower(svc.GetName())}
 
 			// request
 			request := t.Reg.MessageDefinition(meth.GetInputType())
