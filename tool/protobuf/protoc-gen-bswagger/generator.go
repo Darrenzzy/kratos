@@ -321,7 +321,7 @@ func getValidateComment(field *descriptor.FieldDescriptorProto) string {
 	var (
 		tags []reflect.StructTag
 	)
-	//get required info from gogoproto.moretags
+	// get required info from gogoproto.moretags
 	moretags := tag.GetMoreTags(field)
 	if moretags != nil {
 		tags = []reflect.StructTag{reflect.StructTag(*moretags)}
