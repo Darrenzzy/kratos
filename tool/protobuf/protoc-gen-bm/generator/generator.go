@@ -274,11 +274,15 @@ func (t *bm) generateBMRoute(
 	t.P(`// `, bmFuncName, ` Register the blademaster route`)
 	t.P(`func `, bmFuncName, `(e *bm.Engine, server `, servName, `BMServer) {`)
 	t.P(svcName, ` = server`)
-	// 注入 鉴权 路由
-	t.P(` auth := e.Group("", authUser())`)
+	var temp int
 	for _, methInfo := range methList {
 		// 判断若是需要鉴权的api 走鉴权流
 		if methInfo.IsAuth {
+			if temp == 0 {
+				// 注入 鉴权 路由
+				t.P(` auth := e.Group("", authUser())`)
+			}
+			temp++
 			t.P(`auth.`, methInfo.apiInfo.HttpMethod, `("`, methInfo.apiInfo.NewPath, `",`, methInfo.routeFuncName, ` )`)
 			continue
 		}
