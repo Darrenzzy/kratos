@@ -23,7 +23,8 @@ var (
 )
 
 const (
-	ErrLoadCfgMsg = "获取配置信息失败"
-	ErrParamMsg   = "参数验证失败"
-	ErrCalcMsg    = "获取价格信息失败"
+	ErrLoadCfgMsg  = "获取配置信息失败"
+	ErrParamMsg    = "参数验证失败"
+	ErrCalcMsg     = "获取价格信息失败"
+	ErrNotFoundMsg = "查询数据失败"
 )
