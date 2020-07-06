@@ -114,6 +114,7 @@ func (t *bm) generateImports(file *descriptor.FileDescriptorProto) {
 	t.P(`import (`)
 	// t.P(`	`,t.pkgs["context"], ` "context"`)
 	t.P(`	"context"`)
+	t.P(`	"strconv"`)
 	t.P()
 	t.P(`	bm "github.com/go-kratos/kratos/pkg/net/http/blademaster"`)
 	t.P(`	"github.com/go-kratos/kratos/pkg/net/http/blademaster/binding"`)
@@ -226,6 +227,8 @@ func (t *bm) generateBMRoute(
 		t.P(` c.Context = context.WithValue(c.Context, "remote_addr", c.Request.RemoteAddr) `)
 		t.P(` c.Context = context.WithValue(c.Context, "userID", c.Request.Header.Get("userID")) `)
 		t.P(` c.Context = context.WithValue(c.Context, "token", c.Request.Header.Get("token"))`)
+		t.P(` user_id, _ := strconv.ParseInt(c.Request.Header.Get("userID"), 10, 64)`)
+		t.P(` c.Context = context.WithValue(c.Context, "user_id", user_id)`)
 
 		t.P(`	resp, err := `, svcName, `.`, methName, `(c, p)`)
 		t.P(`	c.JSON(resp, err)`)
