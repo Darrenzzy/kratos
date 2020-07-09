@@ -183,6 +183,20 @@ func Errorv(ctx context.Context, args ...D) {
 	h.Log(ctx, _errorLevel, args...)
 }
 
+// Infos logs a message at the info log level.
+func Infos(args ...interface{}) {
+	h.Log(context.TODO(), _infoLevel, logw(args)...)
+}
+
+func Warns(args ...interface{}) {
+	h.Log(context.TODO(), _warnLevel, logw(args)...)
+}
+
+// Errors logs a message at the error log level.
+func Errors(args ...interface{}) {
+	h.Log(context.TODO(), _errorLevel, logw(args)...)
+}
+
 func logw(args []interface{}) []D {
 	if len(args)%2 != 0 {
 		Warn("log: the variadic must be plural, the last one will ignored")
