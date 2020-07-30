@@ -261,13 +261,15 @@ func (d *Discovery) Scheme() string {
 type Resolve struct {
 	id    string
 	event chan struct{}
-	d     *Discovery
-	opt   *naming.BuildOptions
+
+	d   *Discovery
+	opt *naming.BuildOptions
 }
 
 // Watch watch instance.
 func (r *Resolve) Watch() <-chan struct{} {
 	return r.event
+
 }
 
 // Fetch fetch resolver instance.
@@ -661,6 +663,7 @@ func (d *Discovery) broadcast(apps map[string]*naming.InstancesInfo) {
 			for rs := range app.resolver {
 				select {
 				case rs.event <- struct{}{}:
+
 				default:
 				}
 			}
