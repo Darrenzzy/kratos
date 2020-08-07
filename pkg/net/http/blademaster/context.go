@@ -428,7 +428,7 @@ func (c *Context) RetError(msg string) {
 	}
 	c.Error = nil
 	c.Render(http.StatusOK, render.JSON{
-		Code:    http.StatusInternalServerError,
+		Code:    -http.StatusInternalServerError,
 		Message: msg,
 		Data:    nil,
 	})
@@ -441,7 +441,7 @@ func (c *Context) RetAuthorizeError(msg string) {
 	}
 	c.Error = nil
 	c.Render(http.StatusOK, render.JSON{
-		Code:    http.StatusUnauthorized,
+		Code:    -http.StatusUnauthorized,
 		Message: msg,
 	})
 }
