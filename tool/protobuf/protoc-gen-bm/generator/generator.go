@@ -225,11 +225,11 @@ func (t *bm) generateBMRoute(
 
 		// Parameters in the request body are injected into the context
 		t.P(` c.Context = context.WithValue(c.Context, "remote_addr", c.Request.RemoteAddr) `)
-		t.P(` c.Context = context.WithValue(c.Context, "userID", c.Request.Header.Get("userID")) `)
 		t.P(` c.Context = context.WithValue(c.Context, "token", c.Request.Header.Get("token"))`)
 		t.P(` user_id, _ := strconv.ParseInt(c.Request.Header.Get("userID"), 10, 64)`)
+		t.P(` site_id, _ := strconv.ParseInt(c.Request.Header.Get("site_id"), 10, 64)`)
+		t.P(` c.Context = context.WithValue(c.Context, "site_id",site_id)`)
 		t.P(` c.Context = context.WithValue(c.Context, "user_id", user_id)`)
-		t.P(` c.Context = context.WithValue(c.Context, "site_id", site_id)`)
 		t.P(` c.Context = context.WithValue(c.Context, "accept-language", c.Request.Header.Get("accept-language"))`)
 		t.P(`	resp, err := `, svcName, `.`, methName, `(c, p)`)
 		t.P(`	c.JSON(resp, err)`)
